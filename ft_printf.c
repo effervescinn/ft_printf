@@ -16,40 +16,40 @@ typedef struct Line
 
 // 10 = a, 11 = b, 12 = c, 13 = d, 14 = e, 15 = f
 
-// static int	ft_divider(long long int c)
-// {
-// 	long long int	divider;
+int	ft_divider(long long int c)
+{
+	long long int	divider;
 
-// 	divider = 1;
-// 	while (c > 9)
-// 	{
-// 		c /= 10;
-// 		divider *= 10;
-// 	}
-// 	return (divider);
-// }
+	divider = 1;
+	while (c > 9)
+	{
+		c /= 10;
+		divider *= 10;
+	}
+	return (divider);
+}
 
-// void		ft_putnbr_fd(int n, int fd)
-// {
-// 	long long int	new_n;
-// 	long long int	div;
-// 	char			c;
+void		ft_putnbr(int n)
+{
+	long long int	new_n;
+	long long int	div;
+	char			c;
 
-// 	new_n = (long long int)n;
-// 	if (new_n < 0)
-// 	{
-// 		write(fd, "-", 1);
-// 		new_n = new_n * (-1);
-// 	}
-// 	div = ft_divider(new_n);
-// 	while (div)
-// 	{
-// 		c = (new_n / div) + '0';
-// 		write(fd, &c, 1);
-// 		new_n -= (new_n / div) * div;
-// 		div /= 10;
-// 	}
-// }
+	new_n = (long long int)n;
+	if (new_n < 0)
+	{
+		write(1, "-", 1);
+		new_n = new_n * (-1);
+	}
+	div = ft_divider(new_n);
+	while (div)
+	{
+		c = (new_n / div) + '0';
+		write(1, &c, 1);
+		new_n -= (new_n / div) * div;
+		div /= 10;
+	}
+}
 
 // int hex_divider(int div)
 // {
@@ -145,9 +145,76 @@ void check_flags(const char **str, s_line *line)
     }
 }
 
-write_d(va_list *ap, s_line *line)
+int write_d(va_list *ap, s_line line)
 {
-    
+    int d_length;
+    long d_copy;
+    long d_copy_again;
+    int diff;
+    int final_length;
+
+    d_copy = va_arg(*ap, int);
+    d_copy_again = d_copy;
+    if (d_copy == 0)
+        d_length = 1;
+    else
+        d_length = 0;
+    while (d_copy)
+    {
+        d_copy /= 10;
+        d_length++;
+    }
+    final_length = d_length;
+    if (d_copy_again < 0)
+        final_length++;
+    if (line.minus == 0 || line.precision > d_length)
+    {
+        if (line.width > d_length && line.width > line.precision)
+        {
+            if (line.null_flag == 1 && line.precision < 2)
+            {
+                while (line.width > d_length && line.width > line.precision)
+                {
+                    write(1, "0", 1);
+                    (line.width)--;
+                    final_length++;
+                }
+            }
+            else
+            {
+                while (line.width > d_length && line.width > line.precision)
+                {
+                    write(1, " ", 1);
+                    (line.width)--;
+                    final_length++;
+                }
+            }
+        }
+        if (line.precision > d_length)
+        {
+            diff = line.precision - d_length;
+            while (diff--)
+            {
+                write(1, "0", 1);
+                final_length++;
+            }
+        }
+        ft_putnbr(d_copy_again);
+    }
+    else
+    {
+        ft_putnbr(d_copy_again);
+        if (line.width > d_length && line.width > line.precision)
+        {
+            while (line.width > d_length && line.width > line.precision)
+            {
+                write(1, " ", 1);
+                final_length++;
+                (line.width)--;
+            }
+        }
+    }
+    return (final_length);
 }
 
 int ft_printf(const char *format, ...)
@@ -155,6 +222,9 @@ int ft_printf(const char *format, ...)
     va_list ap;
     va_start(ap, format);
     s_line line;
+    int return_length;
+
+    return_length = 0;
 
     while (*format)
     {
@@ -167,16 +237,23 @@ int ft_printf(const char *format, ...)
         {
             write(1, &(*format), 1);
             format++;
+            return_length++;
         }
         while (*format == '%' && *(++format) == '%')
         {
             write(1, "%", 1);
             format++;
+            return_length++;
         }
-            format++;
+        if (*format == '\0')
+        {
+            va_end(ap);
+            return (return_length);
+        }
         while (!ft_isalpha(*format) && *format)
         {
             check_flags(&format, &line);
+
             if (*format >= '0' && *format <= '9')
             {
                 line.width = ft_atoi(format);
@@ -195,28 +272,21 @@ int ft_printf(const char *format, ...)
                 while (*format >= '0' && *format <= '9')
                     format++;
             }
-            //format++;
         }
         line.type = *format;
-        // printf("\nwidth=%d\nminus=%d\nnull-f=%d\nprecision=%d\ntype=%c\n", line.width, line.minus, line.null_flag, line.precision, line.type);
         if (line.type == 'd') //написать функцию чекер типа
-            write_d(&ap, &line);
+            return_length += write_d(&ap, line);
         format++;
     }
     va_end(ap);
-    return (0);
+    return (return_length);
 }
+
 
 int main()
 {
-    // s_line line;
-    // char *str = "-078";
-    ft_printf("hithere%%%0*dagain", 7, 9);
-    // printf("%d", printf("%09d\n%d\n", 9, 7456));
-    // printf("%05d", ft_atoi("78cc98986"));
-    //check_flags(&str, &line);
-    // printf("%d\n", line.null_flag);
-    // printf("%%kjk%%%%o%s", "hi");
-    // printf("%s", ft_atoi("876"));
+    printf("|original=%d|", -2147483648);
+    printf("|my=%d|", -2147483648);
     return 0;
 }
+
