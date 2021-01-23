@@ -10,6 +10,7 @@ typedef struct Line
     int null_flag;
     int width;     //ширина не обрезает, лишнее заполняет нулями или пробелами, ит депендс
     int precision; //обрезает
+    char precision_e;
     int type;
     int length;
 } s_line;
@@ -155,9 +156,11 @@ int write_d(va_list *ap, s_line line)
 
     d_copy = va_arg(*ap, int);
     d_copy_again = d_copy;
-    if (d_copy == 0)
+    if (line.precision_e == 'y' && d_copy == 0)
+        line.precision = 0;
+    if (d_copy == 0 && line.precision != 0)  
         d_length = 1;
-    else
+    else 
         d_length = 0;
     while (d_copy)
     {
@@ -165,9 +168,9 @@ int write_d(va_list *ap, s_line line)
         d_length++;
     }
     final_length = d_length;
-    if (d_copy_again < 0)
-        final_length++;
-    if (line.minus == 0 || line.precision > d_length)
+    // if (d_copy_again < 0)
+    //     final_length++;
+    if (line.minus == 0)
     {
         if (line.width > d_length && line.width > line.precision)
         {
@@ -190,7 +193,9 @@ int write_d(va_list *ap, s_line line)
                 }
             }
         }
-        if (line.precision > d_length)
+        else if (line.width != 0 && d_copy_again == 0 && line.precision == 0)
+            write(1, " ", 1);
+        if (line.precision > d_length && line.precision != 0)
         {
             diff = line.precision - d_length;
             while (diff--)
@@ -199,11 +204,22 @@ int write_d(va_list *ap, s_line line)
                 final_length++;
             }
         }
-        ft_putnbr(d_copy_again);
+        if (!(line.precision == 0 && d_copy_again == 0))
+            ft_putnbr(d_copy_again);
     }
     else
     {
-        ft_putnbr(d_copy_again);
+        if (line.precision > d_length && line.precision > d_length)
+        {
+            diff = line.precision - d_length;
+            while (diff--)
+            {
+                write(1, "0", 1);
+                final_length++;
+            }
+        }
+        if (!(line.precision == 0 && d_copy_again == 0))
+            ft_putnbr(d_copy_again);
         if (line.width > d_length && line.width > line.precision)
         {
             while (line.width > d_length && line.width > line.precision)
@@ -229,6 +245,7 @@ int ft_printf(const char *format, ...)
     while (*format)
     {
         line.precision = 1;
+        line.precision_e ='n';
         line.minus = 0;
         line.width = 0;
         line.null_flag = 0;
@@ -269,6 +286,8 @@ int ft_printf(const char *format, ...)
             {
                 if (is_num(*(++format)))
                     line.precision = ft_atoi(format);
+                else
+                    line.precision_e = 'y'; 
                 while (*format >= '0' && *format <= '9')
                     format++;
             }
@@ -285,8 +304,10 @@ int ft_printf(const char *format, ...)
 
 int main()
 {
-    printf("|original=%d|", -2147483648);
-    printf("|my=%d|", -2147483648);
+    printf("origin=%d", printf("|%5.3d|", -5));
+    printf("%c", '\n');
+    printf("my=%d", ft_printf("|%5.3d|", -5));
+    printf("%c", '\n');
     return 0;
 }
 
