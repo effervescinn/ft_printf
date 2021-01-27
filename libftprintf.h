@@ -37,5 +37,6 @@ int is_space(const char s);
 int ft_isalpha(int c);
 int	ft_divider(long long int c);
 void		ft_putnbr(int n);
+void	ft_strcpy(char *dst, const char *src);
 
 #endif

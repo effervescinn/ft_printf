@@ -77,6 +77,26 @@ void		ft_putnbr(int n)
 
 //     }
 // }
+
+void	ft_strcpy(char *dst, const char *src)
+{
+	if (*src == '\0')
+		*dst = '\0';
+	else
+	{
+		while (*src)
+		{
+			*dst = *src;
+			dst++;
+			src++;
+		}
+		while (*dst)
+		{
+			*dst = '\0';
+		}
+	}
+}
+
 int ft_isalpha(int c)
 {
     if ((c >= 65 && c <= 90) || (c >= 97 && c <= 122))
@@ -292,9 +312,12 @@ int write_s(va_list *ap, s_line line)
     int string_width;
     char *string;
     int final_length;
+    char *null_str;
 
+    null_str = "(null)";
     string = va_arg(*ap, char*);
     string_width = ft_strlen(string);
+    printf("%s", null_str);
     if (line.precision_p == 'y' && line.precision_d == 'n')
         line.precision = 0;
     else if (line.precision_p == 'n')
@@ -414,11 +437,11 @@ int ft_printf(const char *format, ...)
     return (return_length);
 }
 
-// int main()
-// {
-//     printf("%d", ft_printf("|%-3.s|", "heythe"));
-//     printf("%c", '\n');
-//     printf("%d", printf("|%-3.s|", "heythe"));
-//     printf("%c", '\n');
-//     return 0;
-// }
+int main()
+{
+    // printf("%d", ft_printf("|%-3.s|", "heythe"));
+    // printf("%c", '\n');
+    printf("%d", printf("|%-10.2s|", NULL));
+    printf("%c", '\n');
+    return 0;
+}
