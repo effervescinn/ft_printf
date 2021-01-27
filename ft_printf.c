@@ -133,6 +133,34 @@ void check_flags(const char **str, s_line *line)
     }
 }
 
+int write_c(va_list *ap, s_line line)
+{
+    char c;
+    int final_length;
+
+    c = va_arg(*ap, int);
+    final_length = 1;
+    if (line.minus == 1)
+    {
+        write(1, &c, 1);
+        while (line.width && line.width > 1)
+        {
+            write(1, " ", 1);
+            (line.width)--;
+            final_length++;
+        }
+    return (final_length);
+    }
+    while (line.width && line.width > 1)
+    {
+        write(1, " ", 1);
+        (line.width)--;
+        final_length++;
+    }
+    write(1, &c, 1);
+    return (final_length);
+}
+
 int write_d(va_list *ap, s_line line)
 {
     int d_length;
@@ -317,19 +345,19 @@ int ft_printf(const char *format, ...)
         line.type = *format;
         if (line.type == 'd')
             return_length += write_d(&ap, line);
+        if (line.type == 'c')
+            return_length += write_c(&ap, line);
         format++;
     }
     va_end(ap);
     return (return_length);
 }
 
-
 // int main()
 // {
-//     printf("origin=%d", printf("|%-5.-2d|", 2));
+//     printf("%d\n", printf("|%4c|\n", 'k'));
 //     printf("%c", '\n');
-//     printf("my=%d", ft_printf("|%-5.-2d|", 2));
+//     printf("%d\n", ft_printf("|%4c|\n", 'k'));
 //     printf("%c", '\n');
 //     return 0;
 // }
-
