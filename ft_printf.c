@@ -1,19 +1,6 @@
-#include <stdarg.h>
-#include <unistd.h>
-#include <stdio.h>
+#include "libftprintf.h"
 
 // % [ flags] [ Ширина] [. точность] [ Размер] тип
-
-typedef struct Line
-{
-    int minus; //выравнивание по левому краю в пределах ширины поля
-    int null_flag;
-    int width;     //ширина не обрезает, лишнее заполняет нулями или пробелами, ит депендс
-    int precision; //обрезает
-    char precision_e;
-    int type;
-    int length;
-} s_line;
 
 // 10 = a, 11 = b, 12 = c, 13 = d, 14 = e, 15 = f
 
@@ -84,7 +71,7 @@ int ft_isalpha(int c)
     return (0);
 }
 
-static int is_space(const char s)
+int is_space(const char s)
 {
     if (s == ' ' || s == '\n' || s == '\t' || s == '\v' || s == '\f' || s == '\r')
         return (1);
@@ -156,8 +143,10 @@ int write_d(va_list *ap, s_line line)
 
     d_copy = va_arg(*ap, int);
     d_copy_again = d_copy;
-    if (line.precision_e == 'y' && d_copy == 0)
+    if (line.precision_p == 'y' && line.precision_d == 'n' && d_copy == 0)
         line.precision = 0;
+    if (line.minus == 'y')
+        line.null_flag = 0;
     if (d_copy == 0 && line.precision != 0)  
         d_length = 1;
     else 
@@ -167,15 +156,24 @@ int write_d(va_list *ap, s_line line)
         d_copy /= 10;
         d_length++;
     }
+    d_copy = d_copy_again;
     final_length = d_length;
-    // if (d_copy_again < 0)
-    //     final_length++;
+    if (d_copy_again < 0)
+    {
+        line.width--;
+        final_length++;
+    }
     if (line.minus == 0)
     {
         if (line.width > d_length && line.width > line.precision)
         {
-            if (line.null_flag == 1 && line.precision < 2)
+            if (line.null_flag == 1 && line.precision_p == 'n')
             {
+                if (d_copy_again < 0)
+                {
+                    write(1, "-", 1);
+                    d_copy_again *= -1;
+                }
                 while (line.width > d_length && line.width > line.precision)
                 {
                     write(1, "0", 1);
@@ -191,6 +189,11 @@ int write_d(va_list *ap, s_line line)
                     (line.width)--;
                     final_length++;
                 }
+                if (d_copy_again < 0)
+                {
+                    write(1, "-", 1);
+                    d_copy_again *= -1;
+                }
             }
         }
         else if (line.width != 0 && d_copy_again == 0 && line.precision == 0)
@@ -198,6 +201,11 @@ int write_d(va_list *ap, s_line line)
         if (line.precision > d_length && line.precision != 0)
         {
             diff = line.precision - d_length;
+            if (d_copy_again < 0)
+                {
+                    write(1, "-", 1);
+                    d_copy_again *= -1;
+                }
             while (diff--)
             {
                 write(1, "0", 1);
@@ -211,6 +219,11 @@ int write_d(va_list *ap, s_line line)
     {
         if (line.precision > d_length && line.precision > d_length)
         {
+            if (d_copy_again < 0)
+                {
+                    write(1, "-", 1);
+                    d_copy_again *= -1;
+                }
             diff = line.precision - d_length;
             while (diff--)
             {
@@ -245,7 +258,8 @@ int ft_printf(const char *format, ...)
     while (*format)
     {
         line.precision = 1;
-        line.precision_e ='n';
+        line.precision_p ='n';
+        line.precision_d ='n';
         line.minus = 0;
         line.width = 0;
         line.null_flag = 0;
@@ -284,16 +298,24 @@ int ft_printf(const char *format, ...)
             }
             if (*format == '.')
             {
-                if (is_num(*(++format)))
+                format++;
+                line.precision_p = 'y';
+                if (is_num(*format))
+                {
                     line.precision = ft_atoi(format);
-                else
-                    line.precision_e = 'y'; 
-                while (*format >= '0' && *format <= '9')
+                    line.precision_d = 'y';
+                    while (*format >= '0' && *format <= '9')
                     format++;
+                }
+                else if (*format == '*')
+                {
+                    line.precision = va_arg(ap, int);
+                    format++;
+                }
             }
         }
         line.type = *format;
-        if (line.type == 'd') //написать функцию чекер типа
+        if (line.type == 'd')
             return_length += write_d(&ap, line);
         format++;
     }
@@ -302,12 +324,12 @@ int ft_printf(const char *format, ...)
 }
 
 
-int main()
-{
-    printf("origin=%d", printf("|%5.3d|", -5));
-    printf("%c", '\n');
-    printf("my=%d", ft_printf("|%5.3d|", -5));
-    printf("%c", '\n');
-    return 0;
-}
+// int main()
+// {
+//     printf("origin=%d", printf("|%-5.-2d|", 2));
+//     printf("%c", '\n');
+//     printf("my=%d", ft_printf("|%-5.-2d|", 2));
+//     printf("%c", '\n');
+//     return 0;
+// }
 
