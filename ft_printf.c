@@ -4,6 +4,19 @@
 
 // 10 = a, 11 = b, 12 = c, 13 = d, 14 = e, 15 = f
 
+size_t	ft_strlen(const char *str)
+{
+	size_t i;
+
+	i = 0;
+	while (*str)
+	{
+		i++;
+		str++;
+	}
+	return (i);
+}
+
 int	ft_divider(long long int c)
 {
 	long long int	divider;
@@ -274,6 +287,52 @@ int write_d(va_list *ap, s_line line)
     return (final_length);
 }
 
+int write_s(va_list *ap, s_line line)
+{
+    int string_width;
+    char *string;
+    int final_length;
+
+    string = va_arg(*ap, char*);
+    string_width = ft_strlen(string);
+    if (line.precision_p == 'y' && line.precision_d == 'n')
+        line.precision = 0;
+    else if (line.precision_p == 'n')
+        line.precision = string_width;
+    final_length = 0;
+    if (line.precision <= string_width)
+        string_width = line.precision;
+    
+    if (line.minus == 0)
+    {
+        while ((line.width)-- > string_width)
+        {
+            write(1, " ", 1);
+            final_length++;
+        }
+        while (string_width--)
+        {
+            write(1, string, 1);
+            string++;
+            final_length++;
+        }
+    return(final_length);
+    }
+    while (string_width--)
+    {
+        write(1, string, 1);
+        string++;
+        final_length++;
+        (line.width)--;
+    }
+    while (line.width-- > 0)
+    {
+        write(1, " ", 1);
+        final_length++;
+    }
+    return(final_length);
+}
+
 int ft_printf(const char *format, ...)
 {
     va_list ap;
@@ -343,10 +402,12 @@ int ft_printf(const char *format, ...)
             }
         }
         line.type = *format;
-        if (line.type == 'd')
+        if (line.type == 'd' || line.type == 'i' || line.type == 'u')
             return_length += write_d(&ap, line);
         if (line.type == 'c')
             return_length += write_c(&ap, line);
+        if (line.type == 's')
+            return_length += write_s(&ap, line);
         format++;
     }
     va_end(ap);
@@ -355,9 +416,9 @@ int ft_printf(const char *format, ...)
 
 // int main()
 // {
-//     printf("%d\n", printf("|%4c|\n", 'k'));
+//     printf("%d", ft_printf("|%-3.s|", "heythe"));
 //     printf("%c", '\n');
-//     printf("%d\n", ft_printf("|%4c|\n", 'k'));
+//     printf("%d", printf("|%-3.s|", "heythe"));
 //     printf("%c", '\n');
 //     return 0;
 // }
