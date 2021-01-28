@@ -78,7 +78,7 @@ void		ft_putnbr_hex(unsigned int n, s_line line)
             c += '0';
 		else if (c >= 10 && line.type == 'X')
             c += 55;
-        else if (c >= 10 && line.type == 'x')
+        else if (c >= 10 && line.type == 'x' || c >= 10 && line.type == 'p')
             c += 87;
         write(1, &c, 1);
 		n -= (n / div) * div;
@@ -210,7 +210,7 @@ int write_x(va_list *ap, s_line line)
     int diff;
     int final_length;
 
-    d_copy = va_arg(*ap, int);
+    d_copy = va_arg(*ap, unsigned int);
     d_copy_again = d_copy;
     if (line.precision_p == 'y' && line.precision_d == 'n' && d_copy == 0)
         line.precision = 0;
@@ -554,7 +554,8 @@ int main()
     // printf("%d", printf("|%-10p|", &b));
     // printf("%c", '\n');
     // printf("%d", ft_printf("|%-10p|", &b));
-    printf("%u\n%p\n", &c, &c);
+    printf("%p\n", &c);
+    ft_printf("%p\n", &c);
     // ft_putnbr_hex(2147483647);
     return 0;
 }
