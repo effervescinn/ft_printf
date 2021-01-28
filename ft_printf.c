@@ -30,6 +30,19 @@ int	ft_divider(long long int c)
 	return (divider);
 }
 
+int	ft_divider_hex(unsigned int c)
+{
+	unsigned int	divider;
+
+	divider = 1;
+	while (c > 15)
+	{
+		c /= 16;
+		divider *= 16;
+	}
+	return (divider);
+}
+
 void		ft_putnbr(int n)
 {
 	long long int	new_n;
@@ -52,31 +65,26 @@ void		ft_putnbr(int n)
 	}
 }
 
-// int hex_divider(int div)
-// {
-//     int divider;
+void		ft_putnbr_hex(unsigned int n, s_line line)
+{
+	unsigned int	div;
+	char			c;
 
-//     divider  = 1;
-//     while (c > 15)
-//     {
-//         c /= 16;
-//         divider *=16;
-//     }
-//     return (divider);
-// }
-
-// void    print_hex(int dec)
-// {
-//     //int hex;
-//     int div;
-//     char c;
-
-//     div = hex_divider(dec);
-//     while(div)
-//     {
-
-//     }
-// }
+	div = ft_divider_hex(n);
+	while (div)
+	{
+		c = (n / div);
+        if (c < 10)
+            c += '0';
+		else if (c >= 10 && line.type == 'X')
+            c += 55;
+        else if (c >= 10 && line.type == 'x')
+            c += 87;
+        write(1, &c, 1);
+		n -= (n / div) * div;
+		div /= 16;
+	}
+}
 
 void	ft_strcpy(char *dst, const char *src)
 {
@@ -191,6 +199,99 @@ int write_c(va_list *ap, s_line line)
         final_length++;
     }
     write(1, &c, 1);
+    return (final_length);
+}
+
+int write_x(va_list *ap, s_line line)
+{
+    int d_length;
+    unsigned int d_copy;
+    unsigned int d_copy_again;
+    int diff;
+    int final_length;
+
+    d_copy = va_arg(*ap, int);
+    d_copy_again = d_copy;
+    if (line.precision_p == 'y' && line.precision_d == 'n' && d_copy == 0)
+        line.precision = 0;
+    if (line.minus == 'y')
+        line.null_flag = 0;
+    if (d_copy == 0 && line.precision != 0)  
+        d_length = 1;
+    else 
+        d_length = 0;
+    while (d_copy)
+    {
+        d_copy /= 16;
+        d_length++;
+    }
+    d_copy = d_copy_again;
+    final_length = d_length;
+    if (d_copy_again < 0)
+    {
+        line.width--;
+        final_length++;
+    }
+    if (line.minus == 0)
+    {
+        if (line.width > d_length && line.width > line.precision)
+        {
+            if (line.null_flag == 1 && line.precision_p == 'n')
+            {
+                while (line.width > d_length && line.width > line.precision)
+                {
+                    write(1, "0", 1);
+                    (line.width)--;
+                    final_length++;
+                }
+            }
+            else
+            {
+                while (line.width > d_length && line.width > line.precision)
+                {
+                    write(1, " ", 1);
+                    (line.width)--;
+                    final_length++;
+                }
+            }
+        }
+        else if (line.width != 0 && d_copy_again == 0 && line.precision == 0)
+            write(1, " ", 1);
+        if (line.precision > d_length && line.precision != 0)
+        {
+            diff = line.precision - d_length;
+            while (diff--)
+            {
+                write(1, "0", 1);
+                final_length++;
+            }
+        }
+        if (!(line.precision == 0 && d_copy_again == 0))
+            ft_putnbr_hex(d_copy_again, line);
+    }
+    else
+    {
+        if (line.precision > d_length && line.precision > d_length)
+        {
+            diff = line.precision - d_length;
+            while (diff--)
+            {
+                write(1, "0", 1);
+                final_length++;
+            }
+        }
+        if (!(line.precision == 0 && d_copy_again == 0))
+            ft_putnbr_hex(d_copy_again, line);
+        if (line.width > d_length && line.width > line.precision)
+        {
+            while (line.width > d_length && line.width > line.precision)
+            {
+                write(1, " ", 1);
+                final_length++;
+                (line.width)--;
+            }
+        }
+    }
     return (final_length);
 }
 
@@ -312,12 +413,14 @@ int write_s(va_list *ap, s_line line)
     int string_width;
     char *string;
     int final_length;
-    char *null_str;
+    // char *null_str;
 
-    null_str = "(null)";
+    // null_str = "(null)";
     string = va_arg(*ap, char*);
+    if (!string)
+        string = "(null)";
     string_width = ft_strlen(string);
-    printf("%s", null_str);
+    // printf("%s", null_str);
     if (line.precision_p == 'y' && line.precision_d == 'n')
         line.precision = 0;
     else if (line.precision_p == 'n')
@@ -425,12 +528,14 @@ int ft_printf(const char *format, ...)
             }
         }
         line.type = *format;
-        if (line.type == 'd' || line.type == 'i' || line.type == 'u')
+        if (line.type == 'd' || line.type == 'i')
             return_length += write_d(&ap, line);
         if (line.type == 'c')
             return_length += write_c(&ap, line);
         if (line.type == 's')
             return_length += write_s(&ap, line);
+        if (line.type == 'x' || line.type == 'X' || line.type == 'p')
+            return_length += write_x(&ap, line);
         format++;
     }
     va_end(ap);
@@ -441,7 +546,15 @@ int main()
 {
     // printf("%d", ft_printf("|%-3.s|", "heythe"));
     // printf("%c", '\n');
-    printf("%d", printf("|%-10.2s|", NULL));
-    printf("%c", '\n');
+    // printf("%d", );
+    // printf("%c", '\n');
+    char *b = "hgjhjh";
+    char *c = "bsdfsdf";
+    // void *l = (void *)b;
+    // printf("%d", printf("|%-10p|", &b));
+    // printf("%c", '\n');
+    // printf("%d", ft_printf("|%-10p|", &b));
+    printf("%u\n%p\n", &c, &c);
+    // ft_putnbr_hex(2147483647);
     return 0;
 }
