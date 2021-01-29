@@ -623,13 +623,11 @@ int write_s(va_list *ap, s_line line)
         line.precision = 0;
         line.precision_p = 'n';
     }
-    // printf("%d", line.precision);
     if (line.width < 0)
     {
         line.width *= -1;
         line.minus = 1;
     }
-    // printf("%d", line.width);
     if (!string)
         string = "(null)";
     string_width = ft_strlen(string);
@@ -671,7 +669,36 @@ int write_s(va_list *ap, s_line line)
     return (final_length);
 }
 
-int ft_printf(const char *format, ...) //("%%*i 42 == |%*i|", 2, 42)
+int write_perc(va_list *ap, s_line line)
+{
+    int final_length;
+
+    final_length = 1;
+    if (line.minus == 1)
+        line.null_flag = 0;
+    if (line.minus == 0)
+    {
+        while ((line.width)-- > 1)
+        {
+            if (line.null_flag == 1)
+                write(1, "0", 1);
+            else
+                write(1, " ", 1);
+            final_length++;
+        }
+        write(1, "%", 1);
+        return (final_length);
+    }
+    write(1, "%", 1);
+    while ((line.width)-- > 1)
+    {
+        write(1, " ", 1);
+        final_length++;
+    }
+    return (final_length);
+}
+
+int ft_printf(const char *format, ...)
 {
     va_list ap;
     va_start(ap, format);
@@ -739,20 +766,29 @@ int ft_printf(const char *format, ...) //("%%*i 42 == |%*i|", 2, 42)
                             format++;
                         }
                     }
+                    if (*format != '*' || *format != '.' || !(*format >= '0' && *format <= '9'))
+                        break;
                 }
                 line.type = *format;
                 if (line.type == 'd' || line.type == 'i')
                     return_length += write_d(&ap, line);
-                if (line.type == 'u')
+                else if (line.type == 'u')
                     return_length += write_u(&ap, line);
-                if (line.type == 'c')
+                else if (line.type == 'c')
                     return_length += write_c(&ap, line);
-                if (line.type == 's')
+                else if (line.type == 's')
                     return_length += write_s(&ap, line);
-                if (line.type == 'x' || line.type == 'X')
+                else if (line.type == 'x' || line.type == 'X')
                     return_length += write_x(&ap, line);
-                if (line.type == 'p')
+                else if (line.type == 'p')
                     return_length += write_p(&ap, line);
+                else if (line.type == '%')
+                    return_length += write_perc(&ap, line);
+                if (!(*format))
+                {
+                    va_end(ap);
+                    return (return_length);
+                }  
                 format++;
             }
         }
@@ -767,7 +803,8 @@ int ft_printf(const char *format, ...) //("%%*i 42 == |%*i|", 2, 42)
 //     char *b = "hgjhjh";
 //     char *c = "bsdfsdf";
 
-//     printf("%%*i 42 == |%i|", 42);
+//     // printf("|%0-100d|", -2147483648);
+//     ft_printf("|%0-100d|", -2147483648);
 //     // ft_printf("%-*.*s", 7, 3, "yolo");
 //     return 0;
 // }
