@@ -246,13 +246,13 @@ int write_c(va_list *ap, s_line line)
 
 int write_x(va_list *ap, s_line line)
 {
-    unsigned long d_length;
-    unsigned long d_copy;
-    unsigned long d_copy_again;
-    unsigned long diff;
-    unsigned long final_length;
+    int d_length;
+    unsigned int d_copy;
+    unsigned int d_copy_again;
+    unsigned int diff;
+    unsigned int final_length;
 
-    d_copy = va_arg(*ap, unsigned long);
+    d_copy = va_arg(*ap, unsigned int);
     d_copy_again = d_copy;
     if (line.precision_p == 'y' && line.precision_d == 'n' && d_copy == 0)
         line.precision = 0;
@@ -339,10 +339,9 @@ int write_x(va_list *ap, s_line line)
 
 int write_p(va_list *ap, s_line line)
 {
-    unsigned long d_length;
+    int d_length;
     unsigned long d_copy;
     unsigned long d_copy_again;
-    unsigned long diff;
     unsigned long final_length;
 
     d_copy = va_arg(*ap, unsigned long);
@@ -388,7 +387,7 @@ int write_p(va_list *ap, s_line line)
 
 int write_u(va_list *ap, s_line line)
 {
-    unsigned int d_length;
+    int d_length;
     unsigned int d_copy;
     unsigned int d_copy_again;
     unsigned int diff;
@@ -398,7 +397,7 @@ int write_u(va_list *ap, s_line line)
     d_copy_again = d_copy;
     if (line.precision_p == 'y' && line.precision_d == 'n' && d_copy == 0)
         line.precision = 0;
-    if (line.minus == 'y')
+    if (line.minus == 1)
         line.null_flag = 0;
     if (d_copy == 0 && line.precision != 0)
         d_length = 1;
@@ -506,6 +505,8 @@ int write_d(va_list *ap, s_line line)
 
     d_copy = va_arg(*ap, int);
     d_copy_again = d_copy;
+    if (line.precision < 0 && line.null_flag == 1)
+        line.precision = line.width;
     if (line.width < 0)
     {
         line.minus = 1;
@@ -513,7 +514,7 @@ int write_d(va_list *ap, s_line line)
     }
     if (line.precision_p == 'y' && line.precision_d == 'n' && d_copy == 0)
         line.precision = 0;
-    if (line.minus == 'y')
+    if (line.minus == 1)
         line.null_flag = 0;
     if (d_copy == 0 && line.precision != 0)
         d_length = 1;
@@ -669,7 +670,7 @@ int write_s(va_list *ap, s_line line)
     return (final_length);
 }
 
-int write_perc(va_list *ap, s_line line)
+int write_perc(s_line line)
 {
     int final_length;
 
@@ -783,7 +784,7 @@ int ft_printf(const char *format, ...)
                 else if (line.type == 'p')
                     return_length += write_p(&ap, line);
                 else if (line.type == '%')
-                    return_length += write_perc(&ap, line);
+                    return_length += write_perc(line);
                 if (!(*format))
                 {
                     va_end(ap);
@@ -800,11 +801,17 @@ int ft_printf(const char *format, ...)
 // int main()
 // {
 
-//     char *b = "hgjhjh";
-//     char *c = "bsdfsdf";
+//     int d = 12;
+//     // printf("-->|%0*.*d|<--\n", 3, 2, d);
+//     // ft_printf("-->|%0*.*d|<--\n", 3, 2, d);
+//     // printf("-->|%0*.*d|<--\n", 3, 3, d);
+//     // ft_printf("-->|%0*.*d|<--\n", 3, 3, d);
+//     // printf("-->|%0*.*d|<--\n", 3, 4, d);
+//     // ft_printf("-->|%0*.*d|<--\n", 3, 4, d);
+//     // printf("-->|%0*.*d|<--\n", 4, -1, d);
+//     // ft_printf("-->|%0*.*d|<--\n", 4, -3, d);
+//     // printf("-->|%0*.*d|<--\n", 4, -1, d);
+//     // ft_printf("-->|%0*.*d|<--\n", 4, -1, d);
 
-//     // printf("|%0-100d|", -2147483648);
-//     ft_printf("|%0-100d|", -2147483648);
-//     // ft_printf("%-*.*s", 7, 3, "yolo");
 //     return 0;
 // }
