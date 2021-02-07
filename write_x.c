@@ -1,6 +1,6 @@
 #include "libftprintf.h"
 
-void	check_params(s_line *l, long d, int *d_length)
+void			check_params_x(s_line *l, unsigned int d, int *d_l)
 {
 	if ((*l).width < 0)
 	{
@@ -22,48 +22,39 @@ void	check_params(s_line *l, long d, int *d_length)
 	if ((*l).precision_p == 'y' && (*l).precision_d == 'n' && d == 0)
 		(*l).precision = 0;
 	if (d == 0 && (*l).precision != 0)
-		*d_length = 1;
+		*d_l = 1;
 	else
-		*d_length = 0;
+		*d_l = 0;
 }
 
-void	minus_on(s_line *line, int d_length, int *f_l, long *d)
+void			minus_on_x(s_line *line, int d_l, int *f_l, unsigned int *d)
 {
-	int	diff;
+	int diff;
 
-	if ((*line).precision > d_length && (*line).precision > d_length)
+	if ((*line).precision > d_l && (*line).precision > d_l)
 	{
-		if (*d < 0)
-		{
-			write(1, "-", 1);
-			*d *= -1;
-		}
-		diff = (*line).precision - d_length;
+		diff = (*line).precision - d_l;
 		while (diff--)
 			*f_l += write(1, "0", 1);
 	}
 	if (!((*line).precision == 0 && *d == 0))
-		ft_putnbr(*d);
-	while ((*line).width > d_length && (*line).width > (*line).precision)
+		ft_putnbr_x(*d, *line);
+	while ((*line).width > d_l && (*line).width > (*line).precision)
 	{
 		*f_l += write(1, " ", 1);
 		((*line).width)--;
 	}
 }
 
-void	check_idk(s_line *line, int d_l, int *f_l, long *d)
+void			check_idk_x(s_line *line, int d_l, int *f_l)
 {
 	if ((*line).null_flag == 1 && (*line).precision_p == 'n')
 	{
-		if (*d < 0)
-			write(1, "-", 1);
 		while ((*line).width > d_l && (*line).width > (*line).precision)
 		{
 			*f_l += write(1, "0", 1);
 			((*line).width)--;
 		}
-		if (*d < 0)
-			*d *= -1;
 		return ;
 	}
 	while ((*line).width > d_l && (*line).width > (*line).precision)
@@ -71,60 +62,46 @@ void	check_idk(s_line *line, int d_l, int *f_l, long *d)
 		*f_l += write(1, " ", 1);
 		((*line).width)--;
 	}
-	if (*d < 0)
-		write(1, "-", 1);
-	if (*d < 0)
-		*d *= -1;
 }
 
-void	minus_no(s_line *line, int d_length, int *final_length, long *d)
+void			minus_no_x(s_line *line, int d_l, int *f_l, unsigned int *d)
 {
 	int diff;
 
-	if ((*line).width > d_length && (*line).width > (*line).precision)
-		check_idk(line, d_length, final_length, d);
+	if ((*line).width > d_l && (*line).width > (*line).precision)
+		check_idk_x(line, d_l, f_l);
 	else if ((*line).width != 0 && *d == 0 && (*line).precision == 0)
 		write(1, " ", 1);
-	if ((*line).precision > d_length && (*line).precision != 0)
+	if ((*line).precision > d_l && (*line).precision != 0)
 	{
-		diff = (*line).precision - d_length;
-		if (*d < 0)
-		{
-			write(1, "-", 1);
-			*d *= -1;
-		}
+		diff = (*line).precision - d_l;
 		while (diff--)
-			*final_length += write(1, "0", 1);
+			*f_l += write(1, "0", 1);
 	}
 	if (!((*line).precision == 0 && *d == 0))
-		ft_putnbr(*d);
+		ft_putnbr_x(*d, *line);
 }
 
-int		write_d(va_list *ap, s_line line)
+int				write_x(va_list *ap, s_line line)
 {
-	int		d_length;
-	long	d_copy;
-	long	d_copy_again;
-	int		diff;
-	int		final_length;
+	int				d_length;
+	unsigned int	d_copy;
+	unsigned int	d_copy_again;
+	unsigned int	diff;
+	int				final_length;
 
 	d_copy = va_arg(*ap, int);
 	d_copy_again = d_copy;
-	check_params(&line, d_copy, &d_length);
+	check_params_x(&line, d_copy, &d_length);
 	while (d_copy)
 	{
-		d_copy /= 10;
+		d_copy /= 16;
 		d_length++;
 	}
 	final_length = d_length;
-	if (d_copy_again < 0)
-	{
-		line.width--;
-		final_length++;
-	}
 	if (line.minus == 0)
-		minus_no(&line, d_length, &final_length, &d_copy_again);
+		minus_no_x(&line, d_length, &final_length, &d_copy_again);
 	else
-		minus_on(&line, d_length, &final_length, &d_copy_again);
+		minus_on_x(&line, d_length, &final_length, &d_copy_again);
 	return (final_length);
 }
