@@ -88,6 +88,96 @@ void check_flags(const char **str, s_line *line)
 	}
 }
 
+void	check_type(int *r_len, s_line line, va_list *ap)
+{
+if (line.type == 'd' || line.type == 'i')
+					*r_len += write_d(ap, line);
+				else if (line.type == 'u')
+					*r_len += write_u(ap, line);
+				else if (line.type == 'c')
+					*r_len += write_c(ap, line);
+				else if (line.type == 's')
+					*r_len+= write_s(ap, line);
+				else if (line.type == 'x' || line.type == 'X')
+					*r_len += write_x(ap, line);
+				else if (line.type == 'p')
+					*r_len += write_p(ap, line);
+				else if (line.type == '%')
+					*r_len += write_perc(line);
+}
+
+void pars_w_p(const char **format, s_line *line, va_list *ap)
+{
+	if (**format == '*')
+					{
+						(*line).width = va_arg(*ap, int);
+						(*format)++;
+					}
+					if (**format == '.')
+					{
+						(*format)++;
+						(*line).precision_p = 'y';
+						if (is_num(**format) || **format == '-') //change is_num
+						{
+							(*line).precision = ft_atoi(*format);
+							(*line).precision_d = 'y';
+							while ((**format >= '0' && **format <= '9') || **format == '-')
+								(*format)++;
+						}
+						else if (**format == '*')
+						{
+							(*line).precision = va_arg(*ap, int);
+							(*line).precision_p = 'y';
+							(*line).precision_d = 'y';
+							(*format)++;
+						}
+					}
+}
+
+void	rep_perc(const char **format, s_line *line, int *r_l, va_list *ap)
+{
+				(*format)++;
+				while (!ft_isalpha(**format) && **format)
+				{
+					check_flags(format, line);
+					if (**format >= '0' && **format <= '9')
+					{
+						(*line).width = ft_atoi(*format);
+						while (**format >= '0' && **format <= '9')
+							(*format)++;
+					}
+					pars_w_p(format, line, ap);
+					if (**format != '*' || **format != '.' || !(is_num(**format)))
+						break;
+				}
+				(*line).type = **format;
+				check_type(r_l, *line, ap);
+}
+
+void set_line(s_line *line, int *r_l, const char **format)
+{
+		(*line).precision = 1;
+		(*line).precision_p = 'n';
+		(*line).precision_d = 'n';
+		(*line).minus = 0;
+		(*line).width = 0;
+		(*line).null_flag = 0;
+		while (**format != '%' && **format)
+		{
+			*r_l += write(1, &(**format), 1);
+			(*format)++;
+		}
+}
+
+void parse_perc(const char **format, int *r_l)
+{
+while (**format == '%' && *((*format) + 1) == '%')
+			{
+				*r_l += write(1, "%", 1);
+				(*format) += 2;
+			}
+}
+
 int ft_printf(const char *format, ...)
 {
 	va_list ap;
@@ -96,89 +186,19 @@ int ft_printf(const char *format, ...)
 	int return_length;
 
 	return_length = 0;
-
 	while (*format)
 	{
-		line.precision = 1;
-		line.precision_p = 'n';
-		line.precision_d = 'n';
-		line.minus = 0;
-		line.width = 0;
-		line.null_flag = 0;
-		while (*format != '%' && *format)
-		{
-			write(1, &(*format), 1);
-			format++;
-			return_length++;
-		}
+		set_line(&line, &return_length, &format);
 		if (*format == '%')
 		{
-			while (*format == '%' && *(format + 1) == '%')
-			{
-				write(1, "%", 1);
-				format += 2;
-				return_length++;
-			}
+			parse_perc(&format, &return_length);
 			if (*format == '%')
 			{
-				format++;
-				while (!ft_isalpha(*format) && *format)
-				{
-					check_flags(&format, &line);
-
-					if (*format >= '0' && *format <= '9')
-					{
-						line.width = ft_atoi(format);
-						while (*format >= '0' && *format <= '9')
-							format++;
-					}
-					if (*format == '*')
-					{
-						line.width = va_arg(ap, int);
-						format++;
-					}
-					if (*format == '.')
-					{
-						format++;
-						line.precision_p = 'y';
-						if (is_num(*format) || *format == '-')
-						{
-							line.precision = ft_atoi(format);
-							line.precision_d = 'y';
-							while ((*format >= '0' && *format <= '9') || *format == '-')
-								format++;
-						}
-						else if (*format == '*')
-						{
-							line.precision = va_arg(ap, int);
-							line.precision_p = 'y';
-							line.precision_d = 'y';
-							format++;
-						}
-					}
-					if (*format != '*' || *format != '.' || !(*format >= '0' && *format <= '9'))
-						break;
-				}
-				line.type = *format;
-				if (line.type == 'd' || line.type == 'i')
-					return_length += write_d(&ap, line);
-				else if (line.type == 'u')
-					return_length += write_u(&ap, line);
-				else if (line.type == 'c')
-					return_length += write_c(&ap, line);
-				else if (line.type == 's')
-					return_length += write_s(&ap, line);
-				else if (line.type == 'x' || line.type == 'X')
-					return_length += write_x(&ap, line);
-				else if (line.type == 'p')
-					return_length += write_p(&ap, line);
-				else if (line.type == '%')
-					return_length += write_perc(line);
+				rep_perc(&format, &line, &return_length, &ap);
 				if (!(*format))
-				{
 					va_end(ap);
+				if (!(*format))
 					return (return_length);
-				}
 				format++;
 			}
 		}
