@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   write_d.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lnorcros <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/02/08 18:46:20 by lnorcros          #+#    #+#             */
+/*   Updated: 2021/02/08 18:46:21 by lnorcros         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "libftprintf.h"
 
-void	check_params(s_line *l, long d, int *d_length)
+void	check_params(t_line *l, long d, int *d_length)
 {
 	if ((*l).width < 0)
 	{
@@ -27,7 +39,7 @@ void	check_params(s_line *l, long d, int *d_length)
 		*d_length = 0;
 }
 
-void	minus_on(s_line *line, int d_length, int *f_l, long *d)
+void	minus_on(t_line *line, int d_length, int *f_l, long *d)
 {
 	int	diff;
 
@@ -51,7 +63,7 @@ void	minus_on(s_line *line, int d_length, int *f_l, long *d)
 	}
 }
 
-void	check_idk(s_line *line, int d_l, int *f_l, long *d)
+void	check_idk(t_line *line, int d_l, int *f_l, long *d)
 {
 	if ((*line).null_flag == 1 && (*line).precision_p == 'n')
 	{
@@ -77,9 +89,9 @@ void	check_idk(s_line *line, int d_l, int *f_l, long *d)
 		*d *= -1;
 }
 
-void	minus_no(s_line *line, int d_length, int *final_length, long *d)
+void	minus_no(t_line *line, int d_length, int *final_length, long *d)
 {
-	int diff;
+	int	diff;
 
 	if ((*line).width > d_length && (*line).width > (*line).precision)
 		check_idk(line, d_length, final_length, d);
@@ -100,7 +112,7 @@ void	minus_no(s_line *line, int d_length, int *final_length, long *d)
 		ft_putnbr(*d);
 }
 
-int		write_d(va_list *ap, s_line line)
+int		write_d(va_list *ap, t_line line)
 {
 	int		d_length;
 	long	d_copy;

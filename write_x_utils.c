@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   write_x_utils.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lnorcros <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/02/08 18:48:37 by lnorcros          #+#    #+#             */
+/*   Updated: 2021/02/08 18:48:38 by lnorcros         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "libftprintf.h"
 
 unsigned int	ft_divider_x(unsigned int c)
@@ -13,7 +25,7 @@ unsigned int	ft_divider_x(unsigned int c)
 	return (divider);
 }
 
-void			ft_putnbr_x(unsigned int n, s_line line)
+void			ft_putnbr_x(unsigned int n, t_line line)
 {
 	unsigned int	div;
 	char			c;

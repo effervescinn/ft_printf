@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   write_x.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lnorcros <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/02/08 18:48:29 by lnorcros          #+#    #+#             */
+/*   Updated: 2021/02/08 18:48:30 by lnorcros         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "libftprintf.h"
 
-void			check_params_x(s_line *l, unsigned int d, int *d_l)
+void			check_params_x(t_line *l, unsigned int d, int *d_l)
 {
 	if ((*l).width < 0)
 	{
@@ -27,7 +39,7 @@ void			check_params_x(s_line *l, unsigned int d, int *d_l)
 		*d_l = 0;
 }
 
-void			minus_on_x(s_line *line, int d_l, int *f_l, unsigned int *d)
+void			minus_on_x(t_line *line, int d_l, int *f_l, unsigned int *d)
 {
 	int diff;
 
@@ -46,7 +58,7 @@ void			minus_on_x(s_line *line, int d_l, int *f_l, unsigned int *d)
 	}
 }
 
-void			check_idk_x(s_line *line, int d_l, int *f_l)
+void			check_idk_x(t_line *line, int d_l, int *f_l)
 {
 	if ((*line).null_flag == 1 && (*line).precision_p == 'n')
 	{
@@ -64,7 +76,7 @@ void			check_idk_x(s_line *line, int d_l, int *f_l)
 	}
 }
 
-void			minus_no_x(s_line *line, int d_l, int *f_l, unsigned int *d)
+void			minus_no_x(t_line *line, int d_l, int *f_l, unsigned int *d)
 {
 	int diff;
 
@@ -82,7 +94,7 @@ void			minus_no_x(s_line *line, int d_l, int *f_l, unsigned int *d)
 		ft_putnbr_x(*d, *line);
 }
 
-int				write_x(va_list *ap, s_line line)
+int				write_x(va_list *ap, t_line line)
 {
 	int				d_length;
 	unsigned int	d_copy;

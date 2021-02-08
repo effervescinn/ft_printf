@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   write_p.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lnorcros <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/02/08 18:48:54 by lnorcros          #+#    #+#             */
+/*   Updated: 2021/02/08 18:48:55 by lnorcros         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "libftprintf.h"
 
 unsigned long	ft_divider_p(unsigned long c)
@@ -13,7 +25,7 @@ unsigned long	ft_divider_p(unsigned long c)
 	return (divider);
 }
 
-void			ft_putnbr_p(unsigned long n, s_line line)
+void			ft_putnbr_p(unsigned long n, t_line line)
 {
 	unsigned long	div;
 	char			c;
@@ -36,7 +48,7 @@ void			ft_putnbr_p(unsigned long n, s_line line)
 	}
 }
 
-void			minus_p(s_line *l, unsigned long *f, int dl, unsigned long *d)
+void			minus_p(t_line *l, unsigned long *f, int dl, unsigned long *d)
 {
 	if ((*l).minus == 0)
 	{
@@ -65,7 +77,7 @@ void			minus_p(s_line *l, unsigned long *f, int dl, unsigned long *d)
 	}
 }
 
-int				write_p(va_list *ap, s_line line)
+int				write_p(va_list *ap, t_line line)
 {
 	int				d_length;
 	unsigned long	d_copy;

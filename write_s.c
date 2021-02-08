@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   write_s.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lnorcros <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/02/08 18:47:42 by lnorcros          #+#    #+#             */
+/*   Updated: 2021/02/08 18:47:44 by lnorcros         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "libftprintf.h"
 
 size_t	ft_strlen(const char *str)
@@ -13,7 +25,7 @@ size_t	ft_strlen(const char *str)
 	return (i);
 }
 
-void	check_s(s_line *line, char **str, int *str_w, int *f_len)
+void	check_s(t_line *line, char **str, int *str_w, int *f_len)
 {
 	if ((*line).precision < 0)
 	{
@@ -37,7 +49,7 @@ void	check_s(s_line *line, char **str, int *str_w, int *f_len)
 		*str_w = (*line).precision;
 }
 
-void	minus_s(s_line *line, char **str, int *str_w, int *f_len)
+void	minus_s(t_line *line, char **str, int *str_w, int *f_len)
 {
 	if ((*line).minus == 0)
 	{
@@ -62,7 +74,7 @@ void	minus_s(s_line *line, char **str, int *str_w, int *f_len)
 	}
 }
 
-int		write_s(va_list *ap, s_line line)
+int		write_s(va_list *ap, t_line line)
 {
 	int		string_width;
 	char	*string;

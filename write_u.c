@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   write_u.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lnorcros <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/02/08 18:48:05 by lnorcros          #+#    #+#             */
+/*   Updated: 2021/02/08 18:48:06 by lnorcros         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "libftprintf.h"
 
-void			check_params_u(s_line *l, unsigned int d, int *d_length)
+void			check_params_u(t_line *l, unsigned int d, int *d_length)
 {
 	if ((*l).width < 0)
 	{
@@ -27,7 +39,7 @@ void			check_params_u(s_line *l, unsigned int d, int *d_length)
 		*d_length = 0;
 }
 
-void			minus_on_u(s_line *line, int d_l, int *f_l, unsigned int *d)
+void			minus_on_u(t_line *line, int d_l, int *f_l, unsigned int *d)
 {
 	int	diff;
 
@@ -46,7 +58,7 @@ void			minus_on_u(s_line *line, int d_l, int *f_l, unsigned int *d)
 	}
 }
 
-void			check_idk_u(s_line *line, int d_length, int *final_length)
+void			check_idk_u(t_line *line, int d_length, int *final_length)
 {
 	if ((*line).null_flag == 1 && (*line).precision_p == 'n')
 	{
@@ -64,7 +76,7 @@ void			check_idk_u(s_line *line, int d_length, int *final_length)
 	}
 }
 
-void			minus_no_u(s_line *line, int d_l, int *f_l, unsigned int *d)
+void			minus_no_u(t_line *line, int d_l, int *f_l, unsigned int *d)
 {
 	int diff;
 
@@ -82,7 +94,7 @@ void			minus_no_u(s_line *line, int d_l, int *f_l, unsigned int *d)
 		ft_putnbr_u(*d);
 }
 
-int				write_u(va_list *ap, s_line line)
+int				write_u(va_list *ap, t_line line)
 {
 	int				d_length;
 	unsigned int	d_copy;
